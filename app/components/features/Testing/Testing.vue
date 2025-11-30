@@ -107,7 +107,6 @@
                 </div>
             </template>
         </template>
-        {{ store.data.answers }}
     </div>
 </template>
 

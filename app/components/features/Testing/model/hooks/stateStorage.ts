@@ -15,6 +15,12 @@ export const saveInputToStorage = (input: IStateData) => {
     localStorage.setItem(`${STORAGE_INPUT}-${input.roomID}`, JSON.stringify(toStore));
 };
 
+export const clearStorage = () => {
+    const store = useTestingStore();
+
+    localStorage.removeItem(`${STORAGE_INPUT}-${store.data.roomID}`);
+};
+
 export const putToInputFromStorage = () => {
     const store = useTestingStore();
 
