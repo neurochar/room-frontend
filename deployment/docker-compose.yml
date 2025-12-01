@@ -3,7 +3,7 @@ services:
         image: neurochar-frontend-client-frontend-room:v1
         restart: unless-stopped
         ports:
-            - 127.0.0.1:3010:3000
+            - 127.0.0.1:3011:3000
         logging:
             driver: json-file
             options:
