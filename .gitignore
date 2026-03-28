@@ -24,3 +24,6 @@ logs
 !.env.example
 
 deployment/builds/*
+
+docker-compose.yml
+readme.txt

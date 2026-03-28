@@ -1,0 +1,78 @@
+# ------------------------------------------------------------
+# ConfigMap приложения backend-app
+# ------------------------------------------------------------
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: frontend-room-config
+    namespace: neurochar
+
+data:
+    TZ: Europe/Moscow
+    NUXT_PUBLIC_API_BASE: https://api.neurochar.ru
+---
+# ------------------------------------------------------------
+# Deployment приложения
+# ------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: frontend-room-app-deployment
+    namespace: neurochar
+
+spec:
+    replicas: 1
+
+    selector:
+        matchLabels:
+            app: frontend-room-app
+
+    template:
+        metadata:
+            labels:
+                app: frontend-room-app
+
+        spec:
+            containers:
+                - name: frontend-room-app
+                  image: __APP_VERSION__
+                  imagePullPolicy: Always
+
+                  ports:
+                      - containerPort: 3000
+
+                  envFrom:
+                      - configMapRef:
+                            name: frontend-room-config
+
+                  readinessProbe:
+                      httpGet:
+                          path: /
+                          port: 3000
+                      initialDelaySeconds: 10
+                      periodSeconds: 30
+                      timeoutSeconds: 10
+
+---
+# ------------------------------------------------------------
+# Service для приложения
+# ------------------------------------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+    name: frontend-room-app-service
+    namespace: neurochar
+    labels:
+        app: frontend-room-app
+
+spec:
+    type: ClusterIP
+
+    selector:
+        app: frontend-room-app
+
+    ports:
+        - name: http
+          port: 3000
+          targetPort: 3000
+          protocol: TCP
