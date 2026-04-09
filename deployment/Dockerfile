@@ -4,16 +4,10 @@ ARG NODE_VERSION=24
 FROM node:${NODE_VERSION}-slim AS build
 WORKDIR /app
 
-RUN npm install -g npm@latest
-
 COPY package*.json ./
-
-RUN npm ci --ignore-scripts \
-    && npm install @oxc-parser/binding-linux-x64-gnu --no-save \
-    && npm run postinstall
+RUN npm ci
 
 COPY . .
-
 ENV NITRO_PRESET=node-server
 RUN npm run build
 
@@ -21,19 +15,15 @@ FROM node:${NODE_VERSION}-slim AS prod-deps
 WORKDIR /app
 
 COPY --from=build /app/.output/server/package*.json ./.output/server/
-
-RUN npm install -g npm@latest \
-    && cd .output/server \
-    && npm install --omit=dev --ignore-scripts --no-audit --no-fund \
-    && npm cache clean --force
+RUN cd .output/server && \
+    npm install --omit=dev --ignore-scripts --no-audit --no-fund && \
+    npm cache clean --force
 
 FROM node:${NODE_VERSION}-slim AS package
 WORKDIR /app
 
 COPY --from=build /app/.output ./.output
-
 RUN rm -rf ./.output/server/node_modules
-
 COPY --from=prod-deps /app/.output/server/node_modules ./.output/server/node_modules
 
 FROM node:${NODE_VERSION}-slim AS runtime
