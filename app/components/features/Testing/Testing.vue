@@ -1,10 +1,11 @@
 <script setup lang="ts">
-    import { StandartErrorList } from '~/shared/errors/errors';
+    import { V1RoomStatus, type V1Room } from '~/api/generated/Api';
+    import { ApiError } from '~/shared/errors/errors';
     import { declOfNum } from '~/shared/helpers/functions';
-    import { fetchRoom } from './api/fetchRoom';
     import { putToInputFromStorage, saveInputToStorage } from './model/hooks/stateStorage';
     import { useTestingStore } from './model/store/store';
-    import { IRoomStatus, type IRoom } from './model/types/room';
+
+    const api = useApi();
 
     const props = defineProps<{
         id: string;
@@ -16,14 +17,19 @@
 
     const isLoadingAnything = computed(() => isLoading.value);
 
-    const fetchItem = async (): Promise<IRoom | null> => {
+    const fetchItem = async (): Promise<V1Room | null> => {
         isLoading.value = true;
         try {
-            const data = await fetchRoom(props.id);
-            return data;
+            const res = await api.v1.roomsPublicServiceGetRoom(props.id);
+
+            if (res.error !== null) {
+                throw res.error;
+            }
+
+            return res.data?.room || null;
         } catch (e) {
-            if (e instanceof StandartErrorList) {
-                if (e.code === 404) {
+            if (e instanceof ApiError) {
+                if (e.code === 400 || e.code === 404) {
                     showError({
                         statusCode: e.code,
                         statusMessage: 'Комната не найдена',
@@ -75,11 +81,11 @@
             <div :class="$style.loading">Загрузка...</div>
         </template>
         <template v-else-if="store.room">
-            <template v-if="store.room.status === IRoomStatus.finished"> Работа с комнатой завершена </template>
+            <template v-if="store.room.status === V1RoomStatus.ROOM_STATUS_FINISHED"> Работа с комнатой завершена </template>
             <template v-else>
                 <div :class="$style.header">
                     <div :class="$style.greeting">
-                        <b>{{ store.room.candidate.candidateName }}</b
+                        <b>{{ store.room.candidate?.candidateName }}</b
                         >, добро пожаловать в вашу персональную комнату!
                     </div>
                     <div

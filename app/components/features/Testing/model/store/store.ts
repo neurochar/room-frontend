@@ -1,4 +1,4 @@
-import type { IRoom, IRoomTechniqueData } from '../types/room';
+import type { V1AnswerValue, V1Room, V1RoomTechniqueItem } from '~/api/generated/Api';
 import type { IState, IStateData } from '../types/store';
 
 const getDefaultStore = (): IState => {
@@ -24,7 +24,7 @@ export const useTestingStore = defineStore('testingStore', {
             this.data.roomID = roomID;
         },
 
-        setRoom(room: IRoom | null) {
+        setRoom(room: V1Room | null) {
             this.room = room;
         },
 
@@ -53,7 +53,7 @@ export const useTestingStore = defineStore('testingStore', {
             }
         },
 
-        setAnswer(index: number, value: any) {
+        setAnswer(index: number, value: V1AnswerValue) {
             this.data.answers.set(index, value);
         },
 
@@ -66,14 +66,14 @@ export const useTestingStore = defineStore('testingStore', {
             return [1, 2];
         },
 
-        nowTechniqueData(): IRoomTechniqueData[] {
+        nowTechniqueData(): V1RoomTechniqueItem[] {
             if (this.room === null) {
                 return [];
             }
             return this.room.techniqueData || [];
         },
 
-        nowTechniqueItem(): IRoomTechniqueData | null {
+        nowTechniqueItem(): V1RoomTechniqueItem | null {
             const item = this.nowTechniqueData[this.data.techniqueItemCurrent];
             if (!item) {
                 return null;

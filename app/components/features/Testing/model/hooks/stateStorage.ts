@@ -6,6 +6,7 @@ type IStateDataStored = Omit<IStateData, 'answers'> & {
 };
 
 const STORAGE_INPUT = 'roomInput';
+
 export const saveInputToStorage = (input: IStateData) => {
     const toStore: IStateDataStored = {
         ...input,

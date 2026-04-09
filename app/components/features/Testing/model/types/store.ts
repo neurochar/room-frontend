@@ -1,13 +1,13 @@
-import type { IRoom } from './room';
+import type { V1AnswerValue, V1Room } from '~/api/generated/Api';
 
 export interface IStateData {
     roomID: string;
     step: number;
     techniqueItemCurrent: number;
-    answers: Map<number, any>;
+    answers: Map<number, V1AnswerValue>;
 }
 
 export interface IState {
-    room: IRoom | null;
+    room: V1Room | null;
     data: IStateData;
 }

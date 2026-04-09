@@ -1,10 +1,10 @@
 <script setup lang="ts">
+    import type { V1RoomTechniqueItem } from '~/api/generated/Api';
     import { openModalAlert } from '~/components/shared/modals/Alert/useModalAlert';
     import { useTestingStore } from '../model/store/store';
-    import type { IRoomTechniqueDataQuestionWithVariants } from '../model/types/room';
 
     defineProps<{
-        techniqueItem: IRoomTechniqueDataQuestionWithVariants;
+        techniqueItem: V1RoomTechniqueItem;
     }>();
 
     const store = useTestingStore();
@@ -13,7 +13,7 @@
 
     watch(value, () => {
         if (value.value !== undefined) {
-            store.setAnswer(store.data.techniqueItemCurrent, value.value);
+            store.setAnswer(store.data.techniqueItemCurrent, { intValue: value.value.toString() });
         } else {
             store.clearAnswer(store.data.techniqueItemCurrent);
         }
@@ -23,18 +23,13 @@
         () => store.data.techniqueItemCurrent,
         () => {
             value.value = undefined;
-
-            // для тестов
-            // nextTick(() => {
-            //     value.value = 1;
-            // });
         },
     );
 
     onMounted(() => {
         const valueInStore = store.data.answers?.get(store.data.techniqueItemCurrent);
-        if (valueInStore !== undefined) {
-            value.value = valueInStore;
+        if (valueInStore && valueInStore.intValue !== undefined) {
+            value.value = Number(valueInStore.intValue);
         }
     });
 

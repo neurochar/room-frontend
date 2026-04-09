@@ -1,7 +1,7 @@
 import { FetchError } from 'ofetch';
 import { declOfNum } from '../helpers/functions';
 
-export class StandartErrorList extends Error {
+export class ApiError extends Error {
     hints: string[] = [];
     details: Record<string, any> = {};
     code: number = 400;
@@ -12,27 +12,27 @@ export class StandartErrorList extends Error {
         super(text);
     }
 
-    setCode(code: number): StandartErrorList {
+    setCode(code: number): ApiError {
         this.code = code;
         return this;
     }
 
-    setTextCode(textCode: string): StandartErrorList {
+    setTextCode(textCode: string): ApiError {
         this.textCode = textCode;
         return this;
     }
 
-    setHints(hints: string[]): StandartErrorList {
+    setHints(hints: string[]): ApiError {
         this.hints = hints;
         return this;
     }
 
-    setDetails(details: Record<string, any>): StandartErrorList {
+    setDetails(details: Record<string, any>): ApiError {
         this.details = details;
         return this;
     }
 
-    setRetryAfter(retryAfter: number): StandartErrorList {
+    setRetryAfter(retryAfter: number): ApiError {
         if (retryAfter < 1) {
             retryAfter = 1;
         }
@@ -59,7 +59,11 @@ export class StandartErrorList extends Error {
         } else if (this.code === 401) {
             hint = `Вы не авторизованы`;
         } else if (this.code >= 400 && this.code < 500) {
-            hint = `Некорректные данные запроса`;
+            if (this.textCode === 'INVALID_IMAGE_SIZE') {
+                hint = `Некорректное разрешение изображения`;
+            } else {
+                hint = `Некорректные данные запроса`;
+            }
         }
 
         return hint;
@@ -77,9 +81,9 @@ export class StandartErrorList extends Error {
     }
 }
 
-export function tryToThrowApiErrors(e: unknown): any {
+export function tryToCatchApiErrors(e: unknown): any {
     if (e instanceof FetchError && e.statusCode) {
-        const err = new StandartErrorList().setCode(e.statusCode);
+        const err = new ApiError().setCode(e.statusCode);
 
         if (e.data) {
             if (typeof e.data.textCode == 'string') {
